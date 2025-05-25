@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -8,8 +9,9 @@ from skdh.io import ReadCwa
 from .parser import FileParser
 
 
+@dataclass
 class Axivity(FileParser):
-    """Parser for Axivity files.
+    """Parser for Axivity file.
 
     Attributes:
         timezone (ZoneInfo | None): Timezone to localize the datetime index to.
@@ -17,32 +19,34 @@ class Axivity(FileParser):
 
     timezone: ZoneInfo | None = None
 
-    def from_cwa(
+    def from_file(
         self,
         path: Path | str,
     ) -> pd.DataFrame:
+        if isinstance(path, str):
+            path = Path(path)
+
         self.check_file(path, ".cwa")
 
         cwa = ReadCwa().predict(file=path, tz_name=self.timezone)
-        cwa["time"] = np.array(cwa["time"], dtype="datetime64[s]")
-
         df = pd.DataFrame(
             cwa["accel"].astype(np.float32),
             columns=["acc_x", "acc_y", "acc_z"],
             index=cwa["time"],
         )
 
-        df.index.name = "datetime"
-        if self.timezone:
-            df.index = pd.to_datetime(df.index, utc=True)
-            df.index = df.index.tz_convert("Europe/Copenhagen")
-        else:
-            df.index = pd.to_datetime(df.index)
-
         temperature = cwa.get("temperature")
-
         if temperature is not None:
             df["temperature"] = temperature.astype(np.float32)
+
+        del cwa
+
+        df.index.name = "datetime"
+        if self.timezone:
+            df.index = pd.to_datetime(df.index, utc=True, unit="s")
+            df.index = df.index.tz_convert("Europe/Copenhagen")
+        else:
+            df.index = pd.to_datetime(df.index, unit="s")
 
         self.check_empty(df)
 

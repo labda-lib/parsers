@@ -11,7 +11,7 @@ DTYPE = np.dtype([("timestamp", "6uint8"), ("x", ">i2"), ("y", ">i2"), ("z", ">i
 
 
 class Sens(FileParser):
-    """Parses binary sensor data files."""
+    """Parses for Sens binary files."""
 
     def _read(
         self,
@@ -39,10 +39,16 @@ class Sens(FileParser):
 
         return df.astype(np.float32)
 
-    def from_bin(self, path: str | Path) -> pd.DataFrame:
+    def from_file(self, path: str | Path) -> pd.DataFrame:
+        if isinstance(path, str):
+            path = Path(path)
+
         self.check_file(path, ".bin")
 
         return self._read(path, np.fromfile)
 
     def from_buffer(self, buffer: bytes) -> pd.DataFrame:
+        if not isinstance(buffer, bytes):
+            raise TypeError("Expected a bytes object.")
+
         return self._read(buffer, np.frombuffer)

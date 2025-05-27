@@ -1,9 +1,11 @@
 from abc import ABC
+from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
 
 
+@dataclass
 class FileParser(ABC):
     """Abstract base class for file parsers.
 

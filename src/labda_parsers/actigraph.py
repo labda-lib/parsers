@@ -1,6 +1,5 @@
 import io
 from contextlib import redirect_stdout
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
@@ -10,7 +9,6 @@ from pygt3x.reader import FileReader
 from .parser import FileParser
 
 
-@dataclass
 class Actigraph(FileParser):
     """Parser for Actigraph files.
 

@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -9,7 +8,6 @@ from skdh.io import ReadCwa
 from .parser import FileParser
 
 
-@dataclass
 class Axivity(FileParser):
     """Parser for Axivity file.
 

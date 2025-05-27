@@ -13,6 +13,8 @@ DTYPE = np.dtype([("timestamp", "6uint8"), ("x", ">i2"), ("y", ">i2"), ("z", ">i
 class Sens(FileParser):
     """Parses for Sens binary files."""
 
+    normalize: bool = True
+
     def _read(
         self,
         obj: Path | bytes,
@@ -35,7 +37,9 @@ class Sens(FileParser):
         self.check_empty(df)
 
         df.set_index("datetime", inplace=True)
-        df = df * SENS_NORMALIZATION_FACTOR
+
+        if self.normalize:
+            df = df * SENS_NORMALIZATION_FACTOR
 
         return df.astype(np.float32)
 
